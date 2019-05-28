@@ -207,20 +207,24 @@ function serveRequest(sql, res, params) {
 function fixerUpper(rows) {
     let base = 'http://www.kringla.nu/kringla/objekt?referens=';
 
-    rows.forEach(function(entry) {
+    rows.forEach(function (entry) {
         // Fixar länken till objektet
         let url = entry.itemId.split('.se/')[1];
-        entry.link = base+url;
+        entry.link = base + url;
 
         // Fixar id
         let arr = entry.itemId.split('/');
-        entry.itemId = arr[arr.length-1]
+        entry.itemId = arr[arr.length - 1]
 
         // Fixar media license
-        if (entry.mediaLicense !== null && entry.mediaLicense.includes("#")) {
-            entry.mediaLicense = entry.mediaLicense.toLowerCase().split('#')[1];
-        } else {
-            entry.mediaLicense = entry.mediaLicense.toLowerCase().split('.org/')[1];
+
+        if (entry.mediaLicense !== null) {
+            if (entry.mediaLicense.includes("#")) {
+                entry.mediaLicense = entry.mediaLicense.toLowerCase().split('#')[1];
+            } else {
+                entry.mediaLicense = entry.mediaLicense.toLowerCase().split('.org/')[1];
+            }
         }
+
     });
 }
