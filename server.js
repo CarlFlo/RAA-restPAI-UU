@@ -95,7 +95,7 @@ app.get("/api/avvikande/:startIndex/:offset", (req, res, next) => {
 
 // Hämta alla (långsam)
 app.get("/api/felaktigt", (req, res, next) => {
-    var sql = `SELECT itemId, byline, mediaLicense FROM items
+    var sql = `SELECT itemId, mediaLicense FROM items
     where mediaLicense is null
     ;`
 
@@ -106,7 +106,7 @@ app.get("/api/felaktigt", (req, res, next) => {
 // Välj start index
 app.get("/api/felaktigt/:startIndex", (req, res, next) => {
 
-    var sql = `SELECT itemId, byline, mediaLicense FROM items
+    var sql = `SELECT itemId, mediaLicense FROM items
     where mediaLicense is null
     limit (?*${defaultOffset}), ${defaultOffset}
     ;`
@@ -118,7 +118,7 @@ app.get("/api/felaktigt/:startIndex", (req, res, next) => {
 // Välj start index och offset
 app.get("/api/felaktigt/:startIndex/:offset", (req, res, next) => {
 
-    var sql = `SELECT itemId, byline, mediaLicense FROM items
+    var sql = `SELECT itemId, mediaLicense FROM items
     where mediaLicense is null
     limit (?*${req.params.offset}), ${req.params.offset}
     ;`
@@ -132,7 +132,7 @@ app.get("/api/felaktigt/:startIndex/:offset", (req, res, next) => {
 
 // Hämta alla (långsam)
 app.get("/api/mestadels_felaktiga", (req, res, next) => {
-    var sql = `SELECT itemId, byline, mediaLicense FROM items 
+    var sql = `SELECT itemId, mediaLicense FROM items 
     WHERE create_fromTime < (2019-70-60) 
     AND create_fromTime >= 1826 
     AND create_fromTime < 2020
@@ -149,7 +149,7 @@ app.get("/api/mestadels_felaktiga", (req, res, next) => {
 // Välj start index
 app.get("/api/mestadels_felaktiga/:startIndex", (req, res, next) => {
 
-    var sql = `SELECT id, itemId, byline, mediaLicense FROM items 
+    var sql = `SELECT id, itemId, mediaLicense FROM items 
     WHERE create_fromTime < (2019-70-60) 
     AND create_fromTime >= 1826 
     AND create_fromTime < 2020
@@ -167,7 +167,7 @@ app.get("/api/mestadels_felaktiga/:startIndex", (req, res, next) => {
 // Välj start index och offset
 app.get("/api/mestadels_felaktiga/:startIndex/:offset", (req, res, next) => {
 
-    var sql = `SELECT id, itemId, byline, mediaLicense FROM items 
+    var sql = `SELECT id, itemId, mediaLicense FROM items 
     WHERE create_fromTime < (2019-70-60) 
     AND create_fromTime >= 1826 
     AND create_fromTime < 2020
@@ -216,5 +216,11 @@ function fixerUpper(rows) {
         let arr = entry.itemId.split('/');
         entry.itemId = arr[arr.length-1]
 
+        // Fixar media license
+        if (entry.mediaLicense !== null && entry.mediaLicense.includes("#")) {
+            entry.mediaLicense = entry.mediaLicense.toLowerCase().split('#')[1];
+        } else {
+            entry.mediaLicense = entry.mediaLicense.toLowerCase().split('.org/')[1];
+        }
     });
 }
