@@ -36,6 +36,7 @@ app.get(`/api/${avvikandeURL}`, (req, res, next) => {
     group by byline
     having licenses > 1
     ;`
+    
     var params = []
     serveRequest(sql, res, params);
 });
@@ -49,6 +50,7 @@ app.get(`/api/${avvikandeURL}/:startIndex`, (req, res, next) => {
     having licenses > 1
     limit (?*${defaultOffset}), ${defaultOffset}
     ;`
+
     var params = [req.params.startIndex]
     serveRequest(sql, res, params);
 });
@@ -62,6 +64,7 @@ app.get(`/api/${avvikandeURL}/:startIndex/:offset`, (req, res, next) => {
     having licenses > 1
     limit (?*${req.params.offset}), ${req.params.offset}
     ;`
+
     var params = [req.params.startIndex]
     serveRequest(sql, res, params);
 });
