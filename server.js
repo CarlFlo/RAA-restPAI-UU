@@ -1,22 +1,26 @@
 // https://developerhowto.com/2018/12/29/build-a-rest-api-with-node-js-and-express-js/
 
 // Create express app
-var express = require("express")
-var app = express()
-var db = require("./database.js")
+const express = require("express")
+const app = express()
+const db = require("./database.js")
 
-const defaultOffset = 64;
+const defaultOffset = 100;
+const avvikandeURL = "a" // avvikande
+const felaktigtURL = "f" // felaktigt
+const mestadelsFelaktigaURL = "mf" // mestadels_felaktiga
 
 // Server port
-var HTTP_PORT = 3000
+const HTTP_PORT = 3000
+
 // Start server
 app.listen(HTTP_PORT, () => {
 
     let today = new Date();
     let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-
     console.log(`\n${time} Server running on port ${HTTP_PORT}`)
 });
+
 // Root endpoint
 app.get("/", (req, res, next) => {
     res.json({ "message": "ok" })
@@ -26,28 +30,19 @@ app.get("/", (req, res, next) => {
 // ############## avvikande ##############
 
 // Hämta alla (långsam)
-app.get("/api/avvikande", (req, res, next) => {
+app.get(`/api/${avvikandeURL}`, (req, res, next) => {
     var sql = `Select byline, count(distinct mediaLicense) as licenses from items 
     where byline is not null
     group by byline
     having licenses > 1
     ;`
     var params = []
-    db.all(sql, params, (err, rows) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "count": rows.length,
-            "data": rows
-        })
-    });
+    serveRequest(sql, res, params);
 });
 
+
 // Välj start index
-app.get("/api/avvikande/:startIndex", (req, res, next) => {
+app.get(`/api/${avvikandeURL}/:startIndex`, (req, res, next) => {
     var sql = `Select byline, count(distinct mediaLicense) as licenses from items 
     where byline is not null
     group by byline
@@ -55,21 +50,12 @@ app.get("/api/avvikande/:startIndex", (req, res, next) => {
     limit (?*${defaultOffset}), ${defaultOffset}
     ;`
     var params = [req.params.startIndex]
-    db.all(sql, params, (err, rows) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "count": rows.length,
-            "data": rows
-        })
-    });
+    serveRequest(sql, res, params);
 });
 
+
 // Välj start index och offset
-app.get("/api/avvikande/:startIndex/:offset", (req, res, next) => {
+app.get(`/api/${avvikandeURL}/:startIndex/:offset`, (req, res, next) => {
     var sql = `Select byline, count(distinct mediaLicense) as licenses from items 
     where byline is not null
     group by byline
@@ -77,24 +63,14 @@ app.get("/api/avvikande/:startIndex/:offset", (req, res, next) => {
     limit (?*${req.params.offset}), ${req.params.offset}
     ;`
     var params = [req.params.startIndex]
-    db.all(sql, params, (err, rows) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "count": rows.length,
-            "data": rows
-        })
-    });
+    serveRequest(sql, res, params);
 });
 
 
 // ############## felaktigt ##############
 
 // Hämta alla (långsam)
-app.get("/api/felaktigt", (req, res, next) => {
+app.get(`/api/${felaktigtURL}`, (req, res, next) => {
     var sql = `SELECT itemId, mediaLicense FROM items
     where mediaLicense is null
     ;`
@@ -104,7 +80,7 @@ app.get("/api/felaktigt", (req, res, next) => {
 });
 
 // Välj start index
-app.get("/api/felaktigt/:startIndex", (req, res, next) => {
+app.get(`/api/${felaktigtURL}/:startIndex`, (req, res, next) => {
 
     var sql = `SELECT itemId, mediaLicense FROM items
     where mediaLicense is null
@@ -116,7 +92,7 @@ app.get("/api/felaktigt/:startIndex", (req, res, next) => {
 });
 
 // Välj start index och offset
-app.get("/api/felaktigt/:startIndex/:offset", (req, res, next) => {
+app.get(`/api/${felaktigtURL}/:startIndex/:offset`, (req, res, next) => {
 
     var sql = `SELECT itemId, mediaLicense FROM items
     where mediaLicense is null
@@ -131,7 +107,7 @@ app.get("/api/felaktigt/:startIndex/:offset", (req, res, next) => {
 // ############## Mestadels felaktiga ##############
 
 // Hämta alla (långsam)
-app.get("/api/mestadels_felaktiga", (req, res, next) => {
+app.get(`/api/${mestadelsFelaktigaURL}`, (req, res, next) => {
     var sql = `SELECT itemId, mediaLicense FROM items 
     WHERE create_fromTime < (2019-70-60) 
     AND create_fromTime >= 1826 
@@ -147,7 +123,7 @@ app.get("/api/mestadels_felaktiga", (req, res, next) => {
 });
 
 // Välj start index
-app.get("/api/mestadels_felaktiga/:startIndex", (req, res, next) => {
+app.get(`/api/${mestadelsFelaktigaURL}/:startIndex`, (req, res, next) => {
 
     var sql = `SELECT id, itemId, mediaLicense FROM items 
     WHERE create_fromTime < (2019-70-60) 
@@ -165,7 +141,7 @@ app.get("/api/mestadels_felaktiga/:startIndex", (req, res, next) => {
 });
 
 // Välj start index och offset
-app.get("/api/mestadels_felaktiga/:startIndex/:offset", (req, res, next) => {
+app.get(`/api/${mestadelsFelaktigaURL}/:startIndex/:offset`, (req, res, next) => {
 
     var sql = `SELECT id, itemId, mediaLicense FROM items 
     WHERE create_fromTime < (2019-70-60) 
@@ -208,17 +184,19 @@ function fixerUpper(rows) {
     let base = 'http://www.kringla.nu/kringla/objekt?referens=';
 
     rows.forEach(function (entry) {
-        // Fixar länken till objektet
-        let url = entry.itemId.split('.se/')[1];
-        entry.link = base + url;
 
-        // Fixar id
-        let arr = entry.itemId.split('/');
-        entry.itemId = arr[arr.length - 1]
+        if (entry.itemId != null) {
+            // Fixar länken till objektet
+            let url = entry.itemId.split('.se/')[1];
+            entry.link = base + url;
+
+            // Fixar id
+            let arr = entry.itemId.split('/');
+            entry.itemId = arr[arr.length - 1]
+        }
 
         // Fixar media license
-
-        if (entry.mediaLicense !== null) {
+        if (entry.mediaLicense != null && entry.mediaLicense.length !== '') {
             if (entry.mediaLicense.includes("#")) {
                 entry.mediaLicense = entry.mediaLicense.toLowerCase().split('#')[1];
             } else {
