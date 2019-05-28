@@ -6,9 +6,9 @@ const app = express()
 const db = require("./database.js")
 
 const defaultOffset = 100;
-const avvikandeURL = "a" // avvikande
-const felaktigtURL = "f" // felaktigt
-const mestadelsFelaktigaURL = "mf" // mestadels_felaktiga
+const avvikandeURL = "avvikande" // avvikande
+const felaktigtURL = "felaktigt" // felaktigt
+const mestadelsFelaktigaURL = "mestadels_felaktiga" // mestadels_felaktiga
 
 // Server port
 const HTTP_PORT = 3000
@@ -185,6 +185,7 @@ function fixerUpper(rows) {
 
     rows.forEach(function (entry) {
 
+        // Null check
         if (entry.itemId != null) {
             // Fixar länken till objektet
             let url = entry.itemId.split('.se/')[1];
@@ -195,8 +196,9 @@ function fixerUpper(rows) {
             entry.itemId = arr[arr.length - 1]
         }
 
-        // Fixar media license
+        // Null check
         if (entry.mediaLicense != null && entry.mediaLicense.length !== '') {
+            // Fixar media license
             if (entry.mediaLicense.includes("#")) {
                 entry.mediaLicense = entry.mediaLicense.toLowerCase().split('#')[1];
             } else {
