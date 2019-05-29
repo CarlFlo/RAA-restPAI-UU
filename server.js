@@ -6,7 +6,7 @@ const app = express()
 const db = require("./database.js")
 
 const defaultOffset = 100;
-const midURLPath = "api/" // Default "api/". Must end in /
+const midURLPath = "api/" // Default "api/" or "". Requires a '/' at the end if string contains any text.
 const avvikandeURL = "avvikande" // avvikande
 const felaktigtURL = "felaktigt" // felaktigt
 const mestadelsFelaktigaURL = "mestadels_felaktiga" // mestadels_felaktiga
