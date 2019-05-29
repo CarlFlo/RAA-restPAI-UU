@@ -31,7 +31,6 @@ app.get("/", (req, res, next) => {
 // ############## avvikande ##############
 
 
-
 // Hämta alla (långsam)
 app.get(`/${midURLPath}${avvikandeURL}`, (req, res, next) => {
     var sql = `Select byline, count(distinct mediaLicense) as licenses from items 
