@@ -6,6 +6,7 @@ const app = express()
 const db = require("./database.js")
 
 const defaultOffset = 100;
+const midURLPath = "api/" // Default "api/". Must end in /
 const avvikandeURL = "avvikande" // avvikande
 const felaktigtURL = "felaktigt" // felaktigt
 const mestadelsFelaktigaURL = "mestadels_felaktiga" // mestadels_felaktiga
@@ -29,21 +30,23 @@ app.get("/", (req, res, next) => {
 
 // ############## avvikande ##############
 
+
+
 // Hämta alla (långsam)
-app.get(`/api/${avvikandeURL}`, (req, res, next) => {
+app.get(`/${midURLPath}${avvikandeURL}`, (req, res, next) => {
     var sql = `Select byline, count(distinct mediaLicense) as licenses from items 
     where byline is not null
     group by byline
     having licenses > 1
     ;`
-    
+
     var params = []
     serveRequest(sql, res, params);
 });
 
 
 // Välj start index
-app.get(`/api/${avvikandeURL}/:startIndex`, (req, res, next) => {
+app.get(`/${midURLPath}${avvikandeURL}/:startIndex`, (req, res, next) => {
     var sql = `Select byline, count(distinct mediaLicense) as licenses from items 
     where byline is not null
     group by byline
@@ -57,7 +60,7 @@ app.get(`/api/${avvikandeURL}/:startIndex`, (req, res, next) => {
 
 
 // Välj start index och offset
-app.get(`/api/${avvikandeURL}/:startIndex/:offset`, (req, res, next) => {
+app.get(`/${midURLPath}${avvikandeURL}/:startIndex/:offset`, (req, res, next) => {
     var sql = `Select byline, count(distinct mediaLicense) as licenses from items 
     where byline is not null
     group by byline
@@ -73,7 +76,7 @@ app.get(`/api/${avvikandeURL}/:startIndex/:offset`, (req, res, next) => {
 // ############## felaktigt ##############
 
 // Hämta alla (långsam)
-app.get(`/api/${felaktigtURL}`, (req, res, next) => {
+app.get(`/${midURLPath}${felaktigtURL}`, (req, res, next) => {
     var sql = `SELECT itemId, mediaLicense FROM items
     where mediaLicense is null
     ;`
@@ -83,7 +86,7 @@ app.get(`/api/${felaktigtURL}`, (req, res, next) => {
 });
 
 // Välj start index
-app.get(`/api/${felaktigtURL}/:startIndex`, (req, res, next) => {
+app.get(`/${midURLPath}${felaktigtURL}/:startIndex`, (req, res, next) => {
 
     var sql = `SELECT itemId, mediaLicense FROM items
     where mediaLicense is null
@@ -95,7 +98,7 @@ app.get(`/api/${felaktigtURL}/:startIndex`, (req, res, next) => {
 });
 
 // Välj start index och offset
-app.get(`/api/${felaktigtURL}/:startIndex/:offset`, (req, res, next) => {
+app.get(`/${midURLPath}${felaktigtURL}/:startIndex/:offset`, (req, res, next) => {
 
     var sql = `SELECT itemId, mediaLicense FROM items
     where mediaLicense is null
@@ -110,7 +113,7 @@ app.get(`/api/${felaktigtURL}/:startIndex/:offset`, (req, res, next) => {
 // ############## Mestadels felaktiga ##############
 
 // Hämta alla (långsam)
-app.get(`/api/${mestadelsFelaktigaURL}`, (req, res, next) => {
+app.get(`/${midURLPath}${mestadelsFelaktigaURL}`, (req, res, next) => {
     var sql = `SELECT itemId, mediaLicense FROM items 
     WHERE create_fromTime < (2019-70-60) 
     AND create_fromTime >= 1826 
@@ -126,7 +129,7 @@ app.get(`/api/${mestadelsFelaktigaURL}`, (req, res, next) => {
 });
 
 // Välj start index
-app.get(`/api/${mestadelsFelaktigaURL}/:startIndex`, (req, res, next) => {
+app.get(`/${midURLPath}${mestadelsFelaktigaURL}/:startIndex`, (req, res, next) => {
 
     var sql = `SELECT id, itemId, mediaLicense FROM items 
     WHERE create_fromTime < (2019-70-60) 
@@ -144,7 +147,7 @@ app.get(`/api/${mestadelsFelaktigaURL}/:startIndex`, (req, res, next) => {
 });
 
 // Välj start index och offset
-app.get(`/api/${mestadelsFelaktigaURL}/:startIndex/:offset`, (req, res, next) => {
+app.get(`/${midURLPath}${mestadelsFelaktigaURL}/:startIndex/:offset`, (req, res, next) => {
 
     var sql = `SELECT id, itemId, mediaLicense FROM items 
     WHERE create_fromTime < (2019-70-60) 
